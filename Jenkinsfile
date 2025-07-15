@@ -7,7 +7,7 @@ pipeline {
   }
 
   environment {
-    IMAGE_NAME   = "matiasjara1901244/proyecto-gps-microserviciodecomprasfacturacion" // Nueva imagen
+    IMAGE_NAME   = "matiasjara1901244/proyecto-gps-microserviciodecomprasfacturacion"
     SSH_CRED     = 'ssh-prod'
     REMOTE_USER  = 'matiasjara1901'
     REMOTE_HOST  = '190.13.177.173'
@@ -51,6 +51,8 @@ pipeline {
                 --restart always \\
                 ${IMAGE_NAME}:latest
             '
+
+            docker network connect backend-net microservicio-de-compras-facturacion
           """
         }
       }
