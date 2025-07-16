@@ -36,7 +36,7 @@ public class SecurityConfig {
         CorsConfiguration cfg = new CorsConfiguration();
         cfg.setAllowCredentials(true);
         cfg.setAllowedOriginPatterns(List.of(
-            "http://190.13.177.173:85", // Frontend
+            "http://190.13.177.173:8005", // Frontend
             "http://localhost:4200",    // Local development
             "http://190.13.177.173:8080" // Producción (asegúrate de incluirlo)
         ));
