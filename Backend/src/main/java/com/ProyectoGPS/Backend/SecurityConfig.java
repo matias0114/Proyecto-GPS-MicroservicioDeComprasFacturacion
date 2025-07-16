@@ -38,7 +38,7 @@ public class SecurityConfig {
         cfg.setAllowedOriginPatterns(List.of(
             "http://190.13.177.173:8005", // Frontend
             "http://localhost:4200",    // Local development
-            "http://190.13.177.173:8080" // Producción (asegúrate de incluirlo)
+            "http://190.13.177.173:8082" // Producción (asegúrate de incluirlo)
         ));
         cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         cfg.setAllowedHeaders(List.of("*"));
