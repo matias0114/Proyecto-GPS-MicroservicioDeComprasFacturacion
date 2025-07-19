@@ -1,0 +1,110 @@
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
+import com.ProyectoGPS.Backend.model.GuiaDespacho;
+import com.ProyectoGPS.Backend.service.GuiaDespachoService;
+import com.ProyectoGPS.Backend.dto.GuiaDespachoRequest;
+import com.ProyectoGPS.Backend.repository.GuiaDespachoRepository;
+import com.ProyectoGPS.Backend.repository.FacturaRepository;
+
+import java.util.Optional;
+import java.time.LocalDateTime;
+
+@SpringBootTest
+@ActiveProfiles("test") 
+public class GuiaDespachoServiceTest {
+
+    @Mock
+    private GuiaDespachoRepository guiaDespachoRepository;
+
+    @Mock
+    private FacturaRepository facturaRepository;
+
+    @InjectMocks
+    private GuiaDespachoService guiaDespachoService;
+
+    private GuiaDespachoRequest guiaDespachoRequest;
+    private GuiaDespacho guiaDespacho;
+    private Factura factura;
+
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+
+        factura = new Factura();
+        factura.setId(1L);
+
+        guiaDespachoRequest = new GuiaDespachoRequest();
+        guiaDespachoRequest.setNumeroGuia("GD123");
+        guiaDespachoRequest.setFacturaId(1L);
+        guiaDespachoRequest.setTransportista("Transportista XYZ");
+        guiaDespachoRequest.setEstado("En tránsito");
+
+        guiaDespacho = new GuiaDespacho();
+        guiaDespacho.setId(1L);
+        guiaDespacho.setNumeroGuia(guiaDespachoRequest.getNumeroGuia());
+        guiaDespacho.setFactura(factura);
+        guiaDespacho.setFechaEmision(LocalDateTime.now());
+        guiaDespacho.setTransportista(guiaDespachoRequest.getTransportista());
+        guiaDespacho.setEstado(guiaDespachoRequest.getEstado());
+    }
+
+    @Test
+    public void testCrearGuiaDespacho() {
+        when(facturaRepository.findById(1L)).thenReturn(Optional.of(factura));
+        when(guiaDespachoRepository.save(any(GuiaDespacho.class))).thenReturn(guiaDespacho);
+
+        GuiaDespacho result = guiaDespachoService.crearGuiaDespacho(guiaDespachoRequest);
+
+        assertNotNull(result);
+        assertEquals("GD123", result.getNumeroGuia());
+        assertEquals("Transportista XYZ", result.getTransportista());
+        assertEquals("En tránsito", result.getEstado());
+        verify(guiaDespachoRepository, times(1)).save(any(GuiaDespacho.class));  
+    }
+
+    @Test
+    public void testObtenerGuiaDespachoPorId() {
+        when(guiaDespachoRepository.findById(1L)).thenReturn(Optional.of(guiaDespacho));
+
+        GuiaDespacho result = guiaDespachoService.obtenerGuiaDespachoPorId(1L);
+
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+        assertEquals("GD123", result.getNumeroGuia());
+        assertEquals("Transportista XYZ", result.getTransportista());
+    }
+
+    @Test
+    public void testActualizarGuiaDespacho() {
+        when(guiaDespachoRepository.findById(1L)).thenReturn(Optional.of(guiaDespacho));
+        when(facturaRepository.findById(1L)).thenReturn(Optional.of(factura));
+        when(guiaDespachoRepository.save(any(GuiaDespacho.class))).thenReturn(guiaDespacho);
+
+        guiaDespachoRequest.setTransportista("Nuevo Transportista");
+        guiaDespachoRequest.setEstado("Entregado");
+
+        GuiaDespacho result = guiaDespachoService.actualizarGuiaDespacho(1L, guiaDespachoRequest);
+
+        assertNotNull(result);
+        assertEquals("Nuevo Transportista", result.getTransportista()); 
+        assertEquals("Entregado", result.getEstado());
+        verify(guiaDespachoRepository, times(1)).save(any(GuiaDespacho.class));
+    }
+
+    @Test
+    public void testEliminarGuiaDespacho() {
+        when(guiaDespachoRepository.findById(1L)).thenReturn(Optional.of(guiaDespacho));
+
+        guiaDespachoService.eliminarGuiaDespacho(1L);
+
+        verify(guiaDespachoRepository, times(1)).deleteById(1L);
+    }
+}
